@@ -75,8 +75,8 @@ BOOST_PYTHON_MODULE(tracker)
     .def_readwrite("px", &Particle::px)
     .def_readwrite("y" , &Particle::y)
     .def_readwrite("py", &Particle::py)
-    .def_readwrite("z" , &Particle::z)
-    .def_readwrite("d" , &Particle::d)
+    .def_readwrite("z" , &Particle::sigma)
+    .def_readwrite("d" , &Particle::delta)
   ;
 
   class_<HostBunch>("HostBunch", init<const size_t>())

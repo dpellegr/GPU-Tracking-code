@@ -1,202 +1,24 @@
 #pragma once
-#include "float_type.h"
-#include "complex.h"
-#include "particle.h"
 
-namespace cst {
-  const double pi = 3.14159265;
-  const double c  = 299792458.0;
-  const double r0 = 2.8179402894e-15;
-  const double e  = 1.602176565e-19; 
-  const double epsilon_0 = 8.854187e-12;
+#define CLGLOBAL
+#define _GPUCODE
+#define __CUDA_HOST_DEVICE__ __host__ __device__
+#include "track.h"
+
+//need c++17 (in NVRTC) to avoid this macro without going to function pointers...
+#define Element(X) struct Element {                       \
+  X data;                                                 \
+  template <typename... Args>                             \
+  __host__ __device__                                     \
+  Element(Args... args): data( X##_init(args...) ) {}     \
+  __host__ __device__                                     \
+  void operator()(Particle & p) { X##_track(&p, &data); } \
 }
 
-struct Drift {
-  Tfloat L;
+// c++17 prototype with auto non-type template parameters:
+// using cLinMap = Element<LinMap, decltype(LinMap_init), decltype(LinMap_track)>;
 
-  __host__ __device__ 
-  Drift(const Tfloat L): L(L) {}
-  
-  __host__ __device__ 
-  void operator()(Particle & p) {
-    const Tfloat cpx = p.px;
-    const Tfloat cpy = p.py;
-    p.x += cpx * L;
-    p.y += cpy * L;
-    p.z += L * 0.5 * (cpx*cpx + cpy*cpy);
-  }
-};
+using cLinMap = Element(LinMap);
 
-// A thin dipole with weak focussing
-struct Dipole {
-  Tfloat angle;
-  Tfloat aa_l; //used for the weak focussing
-
-  __host__ __device__
-  Dipole(const Tfloat A, const Tfloat L=0): angle(A), aa_l(A*A/L) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    p.px += angle * p.d / (p.d + 1.); //energy effect
-    p.px -= aa_l * p.x; // weak focussing
-    p.z -= p.x * angle ;
-  }
-};
-
-struct Quad {
-  Tfloat K1L;
-
-  __host__ __device__
-  Quad(const Tfloat K1L): K1L(K1L) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    const Tfloat S = K1L/(p.d + 1.);
-    p.px -= S * p.x;
-    p.py += S * p.y;
-  }
-};
-
-struct Multipole {
-  int order; 	
-  Complex strength;
-
-  __host__ __device__
-  Multipole(int order, Tfloat KL, Tfloat KLs = 0.): order(order), strength(KL, KLs) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    Complex k = strength / (p.d + 1.);
-    if ( order == 0 ) { // no weak focussing here
-      k -= strength;  
-    } else {
-      int factor=1;
-      for (int i=1;i<order+1;i++)
-           factor*=i;	      
-      k *= pow(Complex(p.x, p.y), order);
-      k=k/factor;
-    }
-    p.px -= k.real;
-    p.py += k.imag;
-  }
-};
-
-struct VKicker {
-  double kick;
-
-  __host__ __device__
-  VKicker(double kick): kick(kick) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    p.py += kick/(p.d + 1.) ;//* p.py;
-  }
-};
-
-struct HKicker {
-  double kick;
-
-  __host__ __device__
-  HKicker(double kick): kick(kick) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    p.px += kick/(p.d + 1.); //* p.px;
-  }
-};
-
-struct RF {
-  Tfloat f, VE;
-
-  __host__ __device__
-  RF(const Tfloat f, const Tfloat VE): f(f),VE(VE) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    const Tfloat K = (2 * cst::pi * f * (1e6)) /(cst::c);  
-    p.d += (VE /1e3) * sin(K * p.z );
-  }
-};
-
-struct BeamBeam {
-  double n, E, sigma;
-
-  __host__ __device__
-  BeamBeam(size_t n, double E, double sigma): n(n), E(E), sigma(sigma) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {  
-    using namespace cst;	
-    double r2 = p.x*p.x + p.y*p.y;
-    p.px += n*e/(2 * pi * epsilon_0 * E *1e9)* p.x/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
-    p.py += n*e/(2 * pi * epsilon_0 * E *1e9)* p.y/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
-    //p.py += 2.*n*cst::r0/(gamma)* p.y/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
-  }
-};
-
-
-//#define CLGLOBAL
-//#define __CUDA_HOST_DEVICE__ __host__ __device__
-//#include "track.h"
-//struct cLinMap {
-//  LinMap data;
-//  
-//  __host__ __device__
-//  cLinMap( double alpha_x_s0, double beta_x_s0, double alpha_x_s1, double beta_x_s1,
-//           double alpha_y_s0, double beta_y_s0, double alpha_y_s1, double beta_y_s1,
-//           double dQ_x, double dQ_y ):
-//    data(LinMap_init(alpha_x_s0, beta_x_s0, alpha_x_s1, beta_x_s1,
-//                     alpha_y_s0, beta_y_s0, alpha_y_s1, beta_y_s1,
-//                     dQ_x, dQ_y))
-//  {}
-//  
-//  __host__ __device__
-//  void opertator()(Particle & p) { LinMap_track(&data, &p); }
-//};
-
-
-/*struct Noise_element {
-  double kick;
-  double mean, sigma;
-  __host__ __device__
-  Noise_element(double mean, double sigma): mean(mean), sigma(sigma) {}
-
-  __host__ __device__
-  void operator()(Particle & p) {
-    p.px += kick;
-  }
-};*/
-
-//__host__ __device__
-//void Drift(const Tfloat L, Particles & p, const size_t t) {
-//  const Tfloat cpx = p.px[t];
-//  const Tfloat cpy = p.py[t];
-//  p.x[t] += cpx * L;
-//  p.y[t] += cpy * L;
-//  p.z[t] += L * 0.5 * (cpx*cpx + cpy*cpy);
-//}
-//
-//
-//__host__ __device__
-//void Multipole(const int order, const Tfloat KL, const Tfloat KSL, Particles & p, const size_t t) {
-//  Complex k(KL,KSL);
-//  k /= p.d[t] + 1.;
-//  if ( order == 0 ) {
-//    k *= -p.d[t];
-//  } else {
-//    k *= pow(Complex(p.x[t], p.y[t]), order);
-//  }
-//  p.px[t] -= k.real;
-//  p.py[t] += k.imag;
-//}
-//
-//__host__ __device__
-//void HKicker(const int kick, Particles & p, const size_t t) {
-//  p.px[t] += kick/(p.d[t] + 1.);
-//}
-//
-//__host__ __device__
-//void VKicker(const int kick, Particles & p, const size_t t) {
-//  p.py[t] += kick/(p.d[t] + 1.);
-//}
+#undef Element
 

@@ -146,7 +146,7 @@ LinMap LinMap_init( double alpha_x_s0, double beta_x_s0, double alpha_x_s1, doub
   res.matrix[4] = sqrt(beta_y_s1/beta_y_s0)*(c+alpha_y_s0*s);
   res.matrix[5] = sqrt(beta_y_s1*beta_y_s0)*s;
   res.matrix[6] = ((alpha_y_s0-alpha_y_s1)*c - (1.+alpha_y_s0*alpha_y_s1)*s)/sqrt(beta_y_s1*beta_y_s0);
-  res.matrix[7] = sqrt(beta_y_s0/beta_y_s1)*(c-alpha_y_s1*s;
+  res.matrix[7] = sqrt(beta_y_s0/beta_y_s1)*(c-alpha_y_s1*s);
   return res;
 }
 

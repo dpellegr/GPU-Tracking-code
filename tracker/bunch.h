@@ -62,14 +62,14 @@ struct HostBunch {
   void set_z(const double sigma_z, const double mean_z = 0.) {
     std::normal_distribution<Tfloat> dist(mean_z,sigma_z);
     for (size_t i = 0; i < size(); ++i) {
-      particles[i].z = dist(bunch_rnd_gen);
+      particles[i].sigma = dist(bunch_rnd_gen);
     }
   }
 
   void set_d(const double sigma_d, const double mean_d = 0.) {
     std::normal_distribution<Tfloat> dist(mean_d,sigma_d);
     for (size_t i = 0; i < size(); ++i) {
-      particles[i].d = dist(bunch_rnd_gen);
+      particles[i].delta = dist(bunch_rnd_gen);
     }
   }
 
@@ -106,8 +106,8 @@ struct HostBunch {
   Tfloat & xp(const size_t i) { return particles[i].px; }
   Tfloat & y (const size_t i) { return particles[i].y ; }
   Tfloat & yp(const size_t i) { return particles[i].py; }
-  Tfloat & z (const size_t i) { return particles[i].z ; }
-  Tfloat & d (const size_t i) { return particles[i].d ; }
+  Tfloat & z (const size_t i) { return particles[i].sigma; }
+  Tfloat & d (const size_t i) { return particles[i].delta; }
 };
 
 void DeviceBunch::operator=(const HostBunch & hb) {

@@ -24,8 +24,8 @@ std::vector<std::string> my_headers_names {
 "float_type.h"
 ,
 "particle.h"
-//,
-//"track.h"
+,
+"track.h"
 };
 
 std::vector<std::string> my_headers {{
@@ -36,8 +36,8 @@ std::vector<std::string> my_headers {{
 #include "float_type.xxd"
 },{
 #include "particle.xxd"
-//},{
-//#include "track.xxd"
+},{
+#include "track.xxd"
 }};
 
 
@@ -128,6 +128,7 @@ class NVRTC {
 //    compilation_opts.emplace_back("-I .");
 //    compilation_opts.emplace_back("-I ./include");
     compilation_opts.emplace_back("--fmad=false");
+    compilation_opts.emplace_back("--std=c++11");
   }
 
   NVRTC(const std::string & ptx_path): NVRTC() {

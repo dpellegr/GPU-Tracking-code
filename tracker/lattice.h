@@ -255,7 +255,6 @@ class Lattice {
     if (lattice.size() == 0) throw std::runtime_error("The lattice looks empty..");
     std::string res = R"===(
 #include "elements.h"
-#include "particle.h"
 extern "C" __global__
 void track(size_t n, Particle* p) {
   size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -267,6 +266,7 @@ void track(size_t n, Particle* p) {
       res += "(p[tid]);\n";
     }
     res += "}}\n";
+std::cout << "CUDA KERNEL:\n" << res << std::endl;
     return res;
   }
 
@@ -373,17 +373,17 @@ void track(size_t n, Particle* p) {
  
     // TWISS
     for (size_t i = 0; i < N; ++i) {
-      const Tfloat xi  = dist_x (bunch_rnd_gen);
-      const Tfloat xpi = dist_xp(bunch_rnd_gen) - ALFX * xi/sigma_x() * sigma_xp();
-      const Tfloat yi  = dist_y (bunch_rnd_gen);
-      const Tfloat ypi = dist_yp(bunch_rnd_gen) - ALFY * yi/sigma_y() * sigma_yp();
-     
-      Particle p = {xi,xpi,yi,ypi,0.,0.};
+      Particle p;
+
+      p.x  = dist_x (bunch_rnd_gen);
+      p.y  = dist_y (bunch_rnd_gen);
+      p.px = dist_xp(bunch_rnd_gen) - ALFX * p.x/sigma_x() * sigma_xp();
+      p.py = dist_yp(bunch_rnd_gen) - ALFY * p.y/sigma_y() * sigma_yp();
+
       b.particles.emplace_back(p);
     }
     b.set_z(bunch_length);
     b.set_d(bunch_energy_spread);
-
 
     // Orbit and Dispersion
     for (size_t i = 0; i < N; ++i) {
