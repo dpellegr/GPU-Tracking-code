@@ -5,9 +5,9 @@
 
 struct Particle {
   Tfloat x;
-  Tfloat xp;
+  Tfloat px;
   Tfloat y;
-  Tfloat yp;
+  Tfloat py;
   Tfloat z;
   Tfloat d;
 };

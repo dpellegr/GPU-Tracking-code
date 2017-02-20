@@ -103,9 +103,9 @@ struct HostBunch {
   }
 
   Tfloat & x (const size_t i) { return particles[i].x ; }
-  Tfloat & xp(const size_t i) { return particles[i].xp; }
+  Tfloat & xp(const size_t i) { return particles[i].px; }
   Tfloat & y (const size_t i) { return particles[i].y ; }
-  Tfloat & yp(const size_t i) { return particles[i].yp; }
+  Tfloat & yp(const size_t i) { return particles[i].py; }
   Tfloat & z (const size_t i) { return particles[i].z ; }
   Tfloat & d (const size_t i) { return particles[i].d ; }
 };

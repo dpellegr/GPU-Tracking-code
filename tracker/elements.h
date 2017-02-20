@@ -9,7 +9,6 @@ namespace cst {
   const double r0 = 2.8179402894e-15;
   const double e  = 1.602176565e-19; 
   const double epsilon_0 = 8.854187e-12;
-
 }
 
 struct Drift {
@@ -20,11 +19,11 @@ struct Drift {
   
   __host__ __device__ 
   void operator()(Particle & p) {
-    const Tfloat cxp = p.xp;
-    const Tfloat cyp = p.yp;
-    p.x += cxp * L;
-    p.y += cyp * L;
-    p.z += L * 0.5 * (cxp*cxp + cyp*cyp);
+    const Tfloat cpx = p.px;
+    const Tfloat cpy = p.py;
+    p.x += cpx * L;
+    p.y += cpy * L;
+    p.z += L * 0.5 * (cpx*cpx + cpy*cpy);
   }
 };
 
@@ -38,8 +37,8 @@ struct Dipole {
 
   __host__ __device__
   void operator()(Particle & p) {
-    p.xp += angle * p.d / (p.d + 1.); //energy effect
-    p.xp -= aa_l * p.x; // weak focussing
+    p.px += angle * p.d / (p.d + 1.); //energy effect
+    p.px -= aa_l * p.x; // weak focussing
     p.z -= p.x * angle ;
   }
 };
@@ -53,8 +52,8 @@ struct Quad {
   __host__ __device__
   void operator()(Particle & p) {
     const Tfloat S = K1L/(p.d + 1.);
-    p.xp -= S * p.x;
-    p.yp += S * p.y;
+    p.px -= S * p.x;
+    p.py += S * p.y;
   }
 };
 
@@ -77,8 +76,8 @@ struct Multipole {
       k *= pow(Complex(p.x, p.y), order);
       k=k/factor;
     }
-    p.xp -= k.real;
-    p.yp += k.imag;
+    p.px -= k.real;
+    p.py += k.imag;
   }
 };
 
@@ -90,7 +89,7 @@ struct VKicker {
 
   __host__ __device__
   void operator()(Particle & p) {
-    p.yp += kick/(p.d + 1.) ;//* p.yp;
+    p.py += kick/(p.d + 1.) ;//* p.py;
   }
 };
 
@@ -102,7 +101,7 @@ struct HKicker {
 
   __host__ __device__
   void operator()(Particle & p) {
-    p.xp += kick/(p.d + 1.); //* p.xp;
+    p.px += kick/(p.d + 1.); //* p.px;
   }
 };
 
@@ -129,11 +128,32 @@ struct BeamBeam {
   void operator()(Particle & p) {  
     using namespace cst;	
     double r2 = p.x*p.x + p.y*p.y;
-    p.xp += n*e/(2 * pi * epsilon_0 * E *1e9)* p.x/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
-    p.yp += n*e/(2 * pi * epsilon_0 * E *1e9)* p.y/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
-    //p.yp += 2.*n*cst::r0/(gamma)* p.y/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
+    p.px += n*e/(2 * pi * epsilon_0 * E *1e9)* p.x/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
+    p.py += n*e/(2 * pi * epsilon_0 * E *1e9)* p.y/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
+    //p.py += 2.*n*cst::r0/(gamma)* p.y/r2 * (1.-exp(-0.5*r2/(sigma*sigma)));
   }
 };
+
+
+//#define CLGLOBAL
+//#define __CUDA_HOST_DEVICE__ __host__ __device__
+//#include "track.h"
+//struct cLinMap {
+//  LinMap data;
+//  
+//  __host__ __device__
+//  cLinMap( double alpha_x_s0, double beta_x_s0, double alpha_x_s1, double beta_x_s1,
+//           double alpha_y_s0, double beta_y_s0, double alpha_y_s1, double beta_y_s1,
+//           double dQ_x, double dQ_y ):
+//    data(LinMap_init(alpha_x_s0, beta_x_s0, alpha_x_s1, beta_x_s1,
+//                     alpha_y_s0, beta_y_s0, alpha_y_s1, beta_y_s1,
+//                     dQ_x, dQ_y))
+//  {}
+//  
+//  __host__ __device__
+//  void opertator()(Particle & p) { LinMap_track(&data, &p); }
+//};
+
 
 /*struct Noise_element {
   double kick;
@@ -143,17 +163,17 @@ struct BeamBeam {
 
   __host__ __device__
   void operator()(Particle & p) {
-    p.xp += kick;
+    p.px += kick;
   }
 };*/
 
 //__host__ __device__
 //void Drift(const Tfloat L, Particles & p, const size_t t) {
-//  const Tfloat cxp = p.xp[t];
-//  const Tfloat cyp = p.yp[t];
-//  p.x[t] += cxp * L;
-//  p.y[t] += cyp * L;
-//  p.z[t] += L * 0.5 * (cxp*cxp + cyp*cyp);
+//  const Tfloat cpx = p.px[t];
+//  const Tfloat cpy = p.py[t];
+//  p.x[t] += cpx * L;
+//  p.y[t] += cpy * L;
+//  p.z[t] += L * 0.5 * (cpx*cpx + cpy*cpy);
 //}
 //
 //
@@ -166,17 +186,17 @@ struct BeamBeam {
 //  } else {
 //    k *= pow(Complex(p.x[t], p.y[t]), order);
 //  }
-//  p.xp[t] -= k.real;
-//  p.yp[t] += k.imag;
+//  p.px[t] -= k.real;
+//  p.py[t] += k.imag;
 //}
 //
 //__host__ __device__
 //void HKicker(const int kick, Particles & p, const size_t t) {
-//  p.xp[t] += kick/(p.d[t] + 1.);
+//  p.px[t] += kick/(p.d[t] + 1.);
 //}
 //
 //__host__ __device__
 //void VKicker(const int kick, Particles & p, const size_t t) {
-//  p.yp[t] += kick/(p.d[t] + 1.);
+//  p.py[t] += kick/(p.d[t] + 1.);
 //}
 

@@ -72,9 +72,9 @@ BOOST_PYTHON_MODULE(tracker)
 
   class_<Particle>("Particle")
     .def_readwrite("x" , &Particle::x)
-    .def_readwrite("xp", &Particle::xp)
+    .def_readwrite("px", &Particle::px)
     .def_readwrite("y" , &Particle::y)
-    .def_readwrite("yp", &Particle::yp)
+    .def_readwrite("py", &Particle::py)
     .def_readwrite("z" , &Particle::z)
     .def_readwrite("d" , &Particle::d)
   ;

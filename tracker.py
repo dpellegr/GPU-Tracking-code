@@ -5,10 +5,11 @@ from modules.tracker import *
 
 # LATTICE 
 lattice = Lattice()
-lattice.add("Drift(1)")
-lattice.add("Quad(0.3)")
-lattice.add("Drift(1)")
-lattice.add("Quad(-0.3)")
+#lattice.add("Drift(1)")
+#lattice.add("Quad(0.3)")
+#lattice.add("Drift(1)")
+#lattice.add("Quad(-0.3)")
+lattice.add("LinMap(1,1,1,1, 1,1,1,1, 0.31, 0.32)")
 
 lattice.compile()
 lattice.n_turns =1000
