@@ -256,8 +256,8 @@ class Lattice {
     std::string res = R"===(
 #include "elements.h"
 extern "C" __global__
-void track(size_t n, Particle* p) {
-  size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+void track(const size_t n, Particle* const p) {
+  const size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < n) {
 )===";
 
@@ -388,9 +388,9 @@ std::cout << "CUDA KERNEL:\n" << res << std::endl;
     // Orbit and Dispersion
     for (size_t i = 0; i < N; ++i) {
       b.x (i) += X  + DX  * b.d(i);
-      b.xp(i) += PX + DPX * b.d(i);
       b.y (i) += Y  + DY  * b.d(i);
-      b.yp(i) += PY + DPY * b.d(i);
+      b.px(i) += PX + DPX * b.d(i);
+      b.py(i) += PY + DPY * b.d(i);
     }
     return b;
   }

@@ -103,9 +103,9 @@ struct HostBunch {
   }
 
   Tfloat & x (const size_t i) { return particles[i].x ; }
-  Tfloat & xp(const size_t i) { return particles[i].px; }
+  Tfloat & px(const size_t i) { return particles[i].px; }
   Tfloat & y (const size_t i) { return particles[i].y ; }
-  Tfloat & yp(const size_t i) { return particles[i].py; }
+  Tfloat & py(const size_t i) { return particles[i].py; }
   Tfloat & z (const size_t i) { return particles[i].sigma; }
   Tfloat & d (const size_t i) { return particles[i].delta; }
 };
@@ -126,10 +126,10 @@ std::vector<Tfloat> get_x_from_bunches (std::vector<HostBunch> &vb, const size_t
   return res;
 }
 
-std::vector<Tfloat> get_xp_from_bunches (std::vector<HostBunch> &vb, const size_t particle_id) {
+std::vector<Tfloat> get_px_from_bunches (std::vector<HostBunch> &vb, const size_t particle_id) {
   std::vector <Tfloat> res;
   for (auto & b: vb) {
-    res.push_back(b.xp(particle_id));
+    res.push_back(b.px(particle_id));
   }
   return res;
 }
@@ -142,10 +142,10 @@ std::vector<Tfloat> get_y_from_bunches (std::vector<HostBunch> &vb, const size_t
   return res;
 }
 
-std::vector<Tfloat> get_yp_from_bunches (std::vector<HostBunch> &vb, const size_t particle_id) {
+std::vector<Tfloat> get_py_from_bunches (std::vector<HostBunch> &vb, const size_t particle_id) {
   std::vector <Tfloat> res;
   for (auto & b: vb) {
-    res.push_back(b.yp(particle_id));
+    res.push_back(b.py(particle_id));
   }
   return res;
 }

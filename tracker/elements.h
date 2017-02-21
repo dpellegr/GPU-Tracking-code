@@ -7,7 +7,7 @@
 
 //need c++17 (in NVRTC) to avoid this macro without going to function pointers...
 #define Element(X) struct Element {                       \
-  X data;                                                 \
+  X##_data data;                                                 \
   template <typename... Args>                             \
   __host__ __device__                                     \
   Element(Args... args): data( X##_init(args...) ) {}     \
@@ -18,7 +18,7 @@
 // c++17 prototype with auto non-type template parameters:
 // using cLinMap = Element<LinMap, decltype(LinMap_init), decltype(LinMap_track)>;
 
-using cLinMap = Element(LinMap);
+using LinMap = Element(LinMap);
 
 #undef Element
 

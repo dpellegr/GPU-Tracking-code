@@ -127,14 +127,14 @@ int Align_track(CLGLOBAL Particle* p, double cz, double sz,
 
 typedef struct {
       double matrix[8];
-      double disp[4];
-} LinMap;
+      //double disp[4];
+} LinMap_data;
 
 __CUDA_HOST_DEVICE__
-LinMap LinMap_init( double alpha_x_s0, double beta_x_s0, double alpha_x_s1, double beta_x_s1,
-                    double alpha_y_s0, double beta_y_s0, double alpha_y_s1, double beta_y_s1,
-                    double dQ_x, double dQ_y ) {
-  LinMap res;
+LinMap_data LinMap_init( double alpha_x_s0, double beta_x_s0, double alpha_x_s1, double beta_x_s1,
+                         double alpha_y_s0, double beta_y_s0, double alpha_y_s1, double beta_y_s1,
+                         double dQ_x, double dQ_y ) {
+  LinMap_data res;
   double s,c;
   sincos(dQ_x, &s, &c);
   res.matrix[0] = sqrt(beta_x_s1/beta_x_s0)*(c+alpha_x_s0*s);
@@ -151,7 +151,7 @@ LinMap LinMap_init( double alpha_x_s0, double beta_x_s0, double alpha_x_s1, doub
 }
 
 __CUDA_HOST_DEVICE__
-int LinMap_track(CLGLOBAL Particle* p, CLGLOBAL LinMap *el){
+int LinMap_track(CLGLOBAL Particle* p, CLGLOBAL LinMap_data *el){
   double M00 = el->matrix[0];
   double M01 = el->matrix[1];
   double M10 = el->matrix[2];

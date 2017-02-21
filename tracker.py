@@ -9,7 +9,7 @@ lattice = Lattice()
 #lattice.add("Quad(0.3)")
 #lattice.add("Drift(1)")
 #lattice.add("Quad(-0.3)")
-lattice.add("cLinMap(1.,1.,1.,1., 1.,1.,1.,1., 0.31, 0.32)")
+lattice.add("LinMap(1.,1.,1.,1., 1.,1.,1.,1., 0.31, 0.32)")
 
 lattice.compile()
 lattice.n_turns =1000
@@ -23,6 +23,6 @@ bunch.particle[0].x = 1
 lattice.track(bunch)
 
 # PLOT
-plt.plot(lattice.turns.x(0), lattice.turns.xp(0), '.')
+plt.plot(lattice.turns.x(0), lattice.turns.px(0), '.')
 plt.show()
 

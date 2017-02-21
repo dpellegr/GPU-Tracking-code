@@ -2,10 +2,15 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include "lattice.h"
 
-  bool operator==(const Particle & p1, const Particle & p2) {
-    return (p1.x==p2.x);
-  }
-
+// required for vector of particles in Python
+bool operator==(const Particle & p1, const Particle & p2) {
+  return (p1.x ==p2.x  && 
+          p1.px==p2.px && 
+          p1.y ==p2.y  &&
+          p1.py==p2.py &&
+          p1.sigma==p2.sigma &&
+          p1.delta==p2.delta );
+}
 
 BOOST_PYTHON_MODULE(tracker)
 {
@@ -22,9 +27,9 @@ BOOST_PYTHON_MODULE(tracker)
   class_< std::vector<HostBunch> >("vec_HostBunch")
     .def(vector_indexing_suite< std::vector<HostBunch> >())
     .def("x",  &get_x_from_bunches ) 
-    .def("xp", &get_xp_from_bunches)
+    .def("px", &get_px_from_bunches)
     .def("y",  &get_y_from_bunches )
-    .def("yp", &get_yp_from_bunches)
+    .def("py", &get_py_from_bunches)
     .def("d",  &get_d_from_bunches )
     .def("z",  &get_z_from_bunches )
   ;
